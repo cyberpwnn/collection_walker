@@ -1,6 +1,6 @@
 name: collection_walker
 description: Walk large firestore collections with ease
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/ArcaneArts/collection_walker
 environment:
   sdk: '>=2.18.6 <3.0.0'

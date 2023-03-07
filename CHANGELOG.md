@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Later
+
 ## 1.0.1
 
 * Added the ability to mark objects as unchanging allowing for objects to be cached
