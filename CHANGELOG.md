@@ -1,3 +1,8 @@
+## 1.1.0
+
+* Added the ability to listen on documents added in batches
+* Added the ability to use a converter which contains the actual doc snapshot
+
 ## 1.0.2
 
 * Later

@@ -16,9 +16,17 @@ import 'package:synchronized/synchronized.dart';
 typedef CollectionEntryConverter<T> = Future<T> Function(
     String id, Map<String, dynamic> json);
 
+typedef CollectionBatchListener = List<DocumentSnapshot<Map<String, dynamic>>>
+    Function(List<DocumentSnapshot<Map<String, dynamic>>> batch);
+
+typedef CollectionDocumentEntryConverter<T> = Future<T> Function(
+    DocumentSnapshot<Map<String, dynamic>> doc);
+
 class CollectionWalker<T> {
   final int chunkSize;
-  final CollectionEntryConverter<T> converter;
+  final CollectionBatchListener? batchListener;
+  final CollectionEntryConverter<T>? converter;
+  final CollectionDocumentEntryConverter<T>? documentConverter;
   final Query<Map<String, dynamic>> query;
   final List<DocumentSnapshot<Map<String, dynamic>>> _data =
       <DocumentSnapshot<Map<String, dynamic>>>[];
@@ -26,9 +34,22 @@ class CollectionWalker<T> {
   int? _cachedSize;
 
   CollectionWalker(
-      {this.chunkSize = 8, required this.converter, required this.query}) {
+      {this.chunkSize = 50,
+      this.documentConverter,
+      this.converter,
+      this.batchListener,
+      required this.query}) {
     getSize();
   }
+
+  List<DocumentSnapshot<Map<String, dynamic>>> _batch(
+          List<DocumentSnapshot<Map<String, dynamic>>> batch) =>
+      batchListener?.call(batch) ?? batch;
+
+  Future<T> _convert(DocumentSnapshot<Map<String, dynamic>> doc) =>
+      documentConverter?.call(doc) ??
+      converter?.call(doc.id, doc.data() ?? {}) ??
+      Future.value(null as T);
 
   Future<int> getSize() {
     if (_cachedSize != null) {
@@ -42,7 +63,7 @@ class CollectionWalker<T> {
 
   Future<T?> getAt(int i) async {
     if (_data.length > i) {
-      return converter(_data[i].id, _data[i].data() ?? {});
+      return _convert(_data[i]);
     }
 
     if (i >= await getSize() || i < 0) {
@@ -55,13 +76,13 @@ class CollectionWalker<T> {
       try {
         while (_data.length < i + 1) {
           if (_data.isEmpty) {
-            _data.addAll((await query.limit(chunkSize).get()).docs);
+            _data.addAll(_batch((await query.limit(chunkSize).get()).docs));
           } else {
-            _data.addAll((await query
+            _data.addAll(_batch((await query
                     .limit(chunkSize)
                     .startAfterDocument(_data[_data.length - 1])
                     .get())
-                .docs);
+                .docs));
           }
         }
       } catch (e, es) {
@@ -70,6 +91,6 @@ class CollectionWalker<T> {
       }
     });
 
-    return converter(_data[i].id, _data[i].data() ?? {});
+    return _convert(_data[i]);
   }
 }
