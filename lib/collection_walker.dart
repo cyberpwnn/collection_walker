@@ -1,14 +1,5 @@
 library collection_walker;
 
-/*
- * Copyright (c) 2022.. MyGuide
- *
- * MyGuide is a closed source project developed by Arcane Arts.
- * Do not copy, share, distribute or otherwise allow this source file
- * to leave hardware approved by Arcane Arts unless otherwise
- * approved by Arcane Arts.
- */
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:synchronized/synchronized.dart';
@@ -57,7 +48,7 @@ class CollectionWalker<T> {
     }
     return query.count().get().then((value) => value.count).then((value) {
       _cachedSize = value;
-      return value;
+      return value ?? 0;
     });
   }
 
