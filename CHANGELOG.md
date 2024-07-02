@@ -1,3 +1,6 @@
+## 1.1.2
+* Cloud Firestore Constraint to `>=4.0.0 <6.0.0`
+
 ## 1.1.1
 * SDK Constraint to `>=2.18.6 <4.0.0`
 

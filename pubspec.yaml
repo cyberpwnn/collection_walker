@@ -1,6 +1,6 @@
 name: collection_walker
 description: Walk large firestore collections with ease
-version: 1.1.1
+version: 1.1.2
 homepage: https://github.com/ArcaneArts/collection_walker
 environment:
   sdk: '>=2.18.6 <4.0.0'
@@ -10,6 +10,6 @@ dependencies:
     sdk: flutter
   fast_log: '>=1.0.0 <2.0.0'
   synchronized: '>=3.0.1 <4.0.0'
-  cloud_firestore: '>=4.0.0 <5.0.0'
+  cloud_firestore: '>=4.0.0 <6.0.0'
 dev_dependencies:
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
