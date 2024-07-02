@@ -5,6 +5,9 @@ Walk collections in firestore with ease
 * Get the size of the collection / query
 * Get any document by index within a query
 
+## Setup
+To use collection walker 2.0.0 and up, you need [fire_api_flutter](https://pub.dev/packages/fire_api_flutter) for the database implementation, and the API [fire_api](https://pub.dev/packages/fire_api) for the API. By decoupling from cloud_firestore, this package can technically be used on both flutter apps using firestore & dart servers using firestore through gcp.
+
 ## Usage
 
 ```import 'package:collection_walker/collection_walker.dart';```
@@ -27,7 +30,7 @@ class _SomeScreenState extends State<SomeScreen> {
     _walker = CollectionWalker(
         chunkSize: 32, // Define a chunk size (usually 1.5x the number of items on screen)
         converter: (id, json) => SomeData.fromJson(json)..id = id, // Define a converter (see json_serializable)
-        query: FirebaseFirestore.instance // Define a query
+        query: FirestoreDatabase.instance // Define a query
             .collection('some_collection')
             .orderBy('some_field'));
     // You do not need to dispose the walker as it only contains cached documents, when the state disposes

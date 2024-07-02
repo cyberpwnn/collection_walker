@@ -1,3 +1,6 @@
+## 2.0.0
+* Migrated to `fire_api` instead of cloud_firestore to support servers also
+
 ## 1.1.2
 * Cloud Firestore Constraint to `>=4.0.0 <6.0.0`
 

@@ -1,26 +1,25 @@
 library collection_walker;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fast_log/fast_log.dart';
+import 'package:fire_api/fire_api.dart';
 import 'package:synchronized/synchronized.dart';
 
 typedef CollectionEntryConverter<T> = Future<T> Function(
     String id, Map<String, dynamic> json);
 
-typedef CollectionBatchListener = List<DocumentSnapshot<Map<String, dynamic>>>
-    Function(List<DocumentSnapshot<Map<String, dynamic>>> batch);
+typedef CollectionBatchListener = List<DocumentSnapshot> Function(
+    List<DocumentSnapshot> batch);
 
 typedef CollectionDocumentEntryConverter<T> = Future<T> Function(
-    DocumentSnapshot<Map<String, dynamic>> doc);
+    DocumentSnapshot doc);
 
 class CollectionWalker<T> {
   final int chunkSize;
   final CollectionBatchListener? batchListener;
   final CollectionEntryConverter<T>? converter;
   final CollectionDocumentEntryConverter<T>? documentConverter;
-  final Query<Map<String, dynamic>> query;
-  final List<DocumentSnapshot<Map<String, dynamic>>> _data =
-      <DocumentSnapshot<Map<String, dynamic>>>[];
+  final CollectionReference query;
+  final List<DocumentSnapshot> _data = <DocumentSnapshot>[];
   final Lock _rollLock = Lock(reentrant: true);
   int? _cachedSize;
 
@@ -33,20 +32,19 @@ class CollectionWalker<T> {
     getSize();
   }
 
-  List<DocumentSnapshot<Map<String, dynamic>>> _batch(
-          List<DocumentSnapshot<Map<String, dynamic>>> batch) =>
+  List<DocumentSnapshot> _batch(List<DocumentSnapshot> batch) =>
       batchListener?.call(batch) ?? batch;
 
-  Future<T> _convert(DocumentSnapshot<Map<String, dynamic>> doc) =>
+  Future<T> _convert(DocumentSnapshot doc) =>
       documentConverter?.call(doc) ??
-      converter?.call(doc.id, doc.data() ?? {}) ??
+      converter?.call(doc.id, doc.data ?? {}) ??
       Future.value(null as T);
 
   Future<int> getSize() {
     if (_cachedSize != null) {
       return Future.value(_cachedSize);
     }
-    return query.count().get().then((value) => value.count).then((value) {
+    return query.count().then((value) {
       _cachedSize = value;
       return value ?? 0;
     });
@@ -67,13 +65,12 @@ class CollectionWalker<T> {
       try {
         while (_data.length < i + 1) {
           if (_data.isEmpty) {
-            _data.addAll(_batch((await query.limit(chunkSize).get()).docs));
+            _data.addAll(_batch((await query.limit(chunkSize).get())));
           } else {
             _data.addAll(_batch((await query
-                    .limit(chunkSize)
-                    .startAfterDocument(_data[_data.length - 1])
-                    .get())
-                .docs));
+                .limit(chunkSize)
+                .startAfter(_data[_data.length - 1])
+                .get())));
           }
         }
       } catch (e, es) {
