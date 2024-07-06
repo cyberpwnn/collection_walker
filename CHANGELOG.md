@@ -1,3 +1,6 @@
+## 2.0.1
+* Removed flutter dependency 
+
 ## 2.0.0
 * Migrated to `fire_api` instead of cloud_firestore to support servers also
 
