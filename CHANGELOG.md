@@ -1,3 +1,6 @@
+## 2.0.2
+* Support fire_crud up to 2.0.0
+
 ## 2.0.1
 * Removed flutter dependency 
 
